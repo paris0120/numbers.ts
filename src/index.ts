@@ -249,12 +249,11 @@ export class Series {
         if (this.value == undefined) throw Error("Empty series.");
         if (period <= 0 || !Number.isInteger(period)) throw Error("period must be a positive ");
         let output:(number|null)[] = [];
-        let c = 1;
+        let c = 0;
         let start:number = this.value[0] == null?this._next(null, 0):0;
         for(let i = 0;i<this.value.length; i++) {
             if(this.value[i] == null) output.push(null);
             else {
-                c++;
                 if(c<period) {
                     c++;
                     output.push(null);
@@ -268,14 +267,14 @@ export class Series {
         return new Series(output);
     }
 
-    private fillNull(value: Series | number | undefined): Series {
+    public fillNull(value: Series | number | undefined): Series {
         if (this.value == undefined) throw Error("Empty series.");
         if (value == undefined) throw Error("Missing value.");
         let output:(number|null)[] = [];
         if(typeof value == 'number') this.value.forEach(v=>{v==null?output.push(value):output.push(v)})
         else for(let i = 0;i<this.value.length;i++) {
-            if(this.value[i] == null) this.push(value.getValue()[i])
-            else this.push(this.value[i]);
+            if(this.value[i] == null) output.push(value.getValue()[i])
+            else output.push(this.value[i]);
         }
         return new Series(output);
     }

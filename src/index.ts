@@ -386,6 +386,66 @@ export class Series {
         return new Series(output);
     }
 
+    public movingMaxIndex(period: number):Series {
+        if (this.value == undefined) throw Error("Empty series.");
+        if (period <= 0 || !Number.isInteger(period)) throw Error("period must be a positive ");
+        let output:(number|null)[] = [];
+        let c = 0;
+        for(let i = 0;i<this.value.length; i++) {
+            if(this.value[i] == null) output.push(null);
+            else {
+                c++;
+                if(c<period) output.push(null);
+                else {
+                    let m = this.value[i];
+                    let index = i;
+                    let pos = i;
+                    for(let p = 1; p < period; p++) { // @ts-ignore
+                        pos = this._last(pos);
+                        if(pos<0) output.push(null)
+                        else {
+                            // @ts-ignore
+                            m = m>=this.value[pos]?m:this.value[pos],index=pos;
+                            output.push(index);
+                        }
+                    }
+                }
+            }
+        }
+
+        return new Series(output);
+    }
+
+    public movingMinIndex(period: number):Series {
+        if (this.value == undefined) throw Error("Empty series.");
+        if (period <= 0 || !Number.isInteger(period)) throw Error("period must be a positive ");
+        let output:(number|null)[] = [];
+        let c = 0;
+        for(let i = 0;i<this.value.length; i++) {
+            if(this.value[i] == null) output.push(null);
+            else {
+                c++;
+                if(c<period) output.push(null);
+                else {
+                    let m = this.value[i];
+                    let index = i;
+                    let pos = i;
+                    for(let p = 1; p < period; p++) { // @ts-ignore
+                        pos = this._last(pos);
+                        if(pos<0) output.push(null)
+                        else {
+                            // @ts-ignore
+                            m = m<=this.value[pos]?m:this.value[pos],index=pos;
+                            output.push(index);
+                        }
+                    }
+                }
+            }
+        }
+
+        return new Series(output);
+    }
+
     public simpleMovingAverage(period: number):Series {
         if (this.value == undefined) throw Error("Empty series.");
         if (period <= 0 || !Number.isInteger(period)) throw Error("period must be a positive ");
@@ -660,7 +720,7 @@ export class Series {
         return new Series(output);
     }
 
-    public stdDev(average: Series|number, period: number, smoothing:number):Series {
+    public stdDev(average: Series|number, period: number):Series {
         if (this.value == undefined) throw Error("Empty series.");
         if (period <= 0 || !Number.isInteger(period)) throw Error("period must be a positive ");
 
@@ -709,7 +769,7 @@ export class Series {
         return new Series(output);
     }
 
-    public variance(average: Series|number, period: number, smoothing:number):Series {
+    public variance(average: Series|number, period: number):Series {
         if (this.value == undefined) throw Error("Empty series.");
         if (period <= 0 || !Number.isInteger(period)) throw Error("period must be a positive ");
 
@@ -755,6 +815,13 @@ export class Series {
                 output.push(sum/period);
             }
         }
+        return new Series(output);
+    }
+
+    public absolute(): Series {
+        if (this.value == undefined) throw Error("Empty series.");
+        let output: (number | null)[] = [];
+        this.value.forEach(v=>{v==null?output.push(null):output.push(Math.abs(v))});
         return new Series(output);
     }
 
@@ -924,4 +991,22 @@ export class Series {
         }
         return new Series(output);
     }
+
+    public carry(): Series{
+        if (this.value == undefined) throw Error("Empty series.");
+        let output: (number | null)[] = [];
+        let sum = 0;
+        for (let i = 0; i < this.value.length; i++) {
+            if (this.value[i] == null) output.push(null);
+            else {
+                // @ts-ignore
+                sum += this.value[i];
+                output.push(sum);
+            }
+        }
+        return new Series(output);
+    }
+
+
+
 }

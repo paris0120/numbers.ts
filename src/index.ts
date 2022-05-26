@@ -232,13 +232,13 @@ export class Series {
         if (period <= 0 || !Number.isInteger(period)) throw Error("period must be a positive ");
         let output:(number|null)[] = [];
         let c = 1;
-        let end:number = this.value[0] == null?this._next(null, 0):0;
-        for(let i = 0; i < period; i++) end = this._next(null, end);
+        let end:number = this._next(null, 0);
+        for(let i = 0; i < period; i++) end = this._next(null, end+1);
         for(let i = 0;i<this.value.length; i++) {
             if(this.value[i] == null || end<0) output.push(null);
             else {
                 output.push(this.value[end]);
-                end = this._next(null, end);
+                end = this._next(null, end+1);
             }
         }
 
@@ -250,7 +250,7 @@ export class Series {
         if (period <= 0 || !Number.isInteger(period)) throw Error("period must be a positive ");
         let output:(number|null)[] = [];
         let c = 0;
-        let start:number = this.value[0] == null?this._next(null, 0):0;
+        let start = this._next(null, 0);
         for(let i = 0;i<this.value.length; i++) {
             if(this.value[i] == null) output.push(null);
             else {
@@ -260,7 +260,7 @@ export class Series {
                 }
                 else {
                     output.push(this.value[start]);
-                    start = this._next(null, start);
+                    start = this._next(null, start+1);
                 }
             }
         }
@@ -285,7 +285,6 @@ export class Series {
      */
     private _next(series: Series[]|null, index: number): number {
         if (index < 0 || !Number.isInteger(index)) throw Error("Index must be a non-negative integer.");
-        index++;
         if(series==null)
             while (index<this.value.length) {
                 if(this.value[index] == null) index++;
@@ -451,7 +450,7 @@ export class Series {
         if (period <= 0 || !Number.isInteger(period)) throw Error("period must be a positive ");
 
         let sum = 0;
-        let start = 0;
+        let start = this._next(null, 0);
         let c = 1;
         let output: (number | null)[] = [];
         for (let i = 0; i < this.value.length; i++) {
@@ -461,12 +460,9 @@ export class Series {
                 sum += this.value[i];
                 if (c >= period) {
                     output.push(sum / period);
-                    if (this.value[start] == null) {
-                        start = this._next(null, start);
-                    }
                     // @ts-ignore
                     sum -= this.value[start];
-                    start++;
+                    start = this._next(null, start+1);
                 } else {
                     c++;
                     output.push(null);
@@ -480,14 +476,17 @@ export class Series {
         if (this.value == undefined) throw Error("Empty series.");
         if (period <= 0 || !Number.isInteger(period)) throw Error("period must be a positive ");
 
-        let sum = 0;
+        let sum ;
         let factor = smoothing / (1 + period);
         let output: (number | null)[] = [];
         for (let i = 0; i < this.value.length; i++) {
             if (this.value[i] == null) output.push(null)
             else {
                 // @ts-ignore
-                sum = this.value[i] * factor + sum * (1 - factor);
+                if(sum == undefined) sum = this.value[i];
+                else { // @ts-ignore
+                    sum = this.value[i] * factor + sum * (1 - factor);
+                }
                 output.push(sum);
             }
         }
@@ -525,7 +524,7 @@ export class Series {
         if (this.value.length != weight.length()) throw Error("Two values have different lengths. The current series has length of " + this.value.length + " and the weight has length of " + weight.length() + ".");
         let sum = 0;
         let wsum = 0;
-        let start = 0;
+        let start = this._next([weight], 0);
         let c = 1;
         let output: (number | null)[] = [];
         for (let i = 0; i < this.value.length; i++) {
@@ -536,16 +535,13 @@ export class Series {
                 // @ts-ignore
                 wsum += weight.getValue()[i];
                 if (c >= period) {
-                    output.push(wsum / sum);
-                    while (this.value[start] == null || weight.getValue()[start] == null) {
-                        start++;
-                    }
+                    if(wsum == 0 ) output.push(null);
+                    else output.push(sum/wsum);
                     // @ts-ignore
-                    sum -= this.value[start] * weight[start];
-                    ;
+                    sum -= this.value[start] * weight.getValue()[start];
                     // @ts-ignore
-                    wsum -= weight[start];
-                    start++;
+                    wsum -= weight.getValue()[start];
+                    start = this._next([weight], start+1);
                 } else {
                     output.push(null);
                     c++;
@@ -562,16 +558,24 @@ export class Series {
         if (this.value.length != weight.length()) throw Error("Two values have different lengths. The current series has length of " + this.value.length + " and the weight has length of " + weight.length() + ".");
 
         let wsum = 0;
-        let sum = 0;
+        let sum;
         let factor = smoothing / (1 + period);
         let output: (number | null)[] = [];
         for (let i = 0; i < this.value.length; i++) {
             if (this.value[i] == null || weight.getValue()[i] == null) output.push(null)
             else {
-                // @ts-ignore
-                sum = this.value[i] * weight.getValue()[i] * factor + sum * (1 - factor);
-                // @ts-ignore
-                wsum = weight.getValue()[i] * factor + wsum * (1 - factor);
+                if(sum==undefined) {
+                    // @ts-ignore
+                    sum = this.value[i] * weight.getValue()[i];
+                    // @ts-ignore
+                    wsum = weight.getValue()[i];
+                }
+                else {
+                    // @ts-ignore
+                    sum = this.value[i] * weight.getValue()[i] * factor + sum * (1 - factor);
+                    // @ts-ignore
+                    wsum = weight.getValue()[i] * factor + wsum * (1 - factor);
+                }
                 if(wsum== 0) output.push(null);
                 else output.push(sum/wsum);
             }
@@ -655,7 +659,7 @@ export class Series {
                 let sum = 0;
                 while (p<period) {
                     // @ts-ignore
-                    sum+=Math.pow(this.value[pos]-average.getValue[i], 2);
+                    sum+=Math.pow(this.value[pos]-average.getValue()[i], 2);
                     pos = this._last(null, pos);
                     p++;
                 }
@@ -710,11 +714,11 @@ export class Series {
                 let sum = 0;
                 while (p<period) {
                     // @ts-ignore
-                    sum+=Math.pow(this.value[pos]-average.getValue[i], 2);
+                    sum+=Math.pow(this.value[pos]-average.getValue()[i], 2);
                     pos = this._last(null, pos);
                     p++;
                 }
-                output.push(sum/period);
+                output.push(Math.sqrt(sum/period));
             }
         }
         return new Series(output);
@@ -759,11 +763,11 @@ export class Series {
                 let sum = 0;
                 while (p<period) {
                     // @ts-ignore
-                    sum+=Math.pow(this.value[pos]-average.getValue[i], 2);
+                    sum+=Math.pow(this.value[pos]-average.getValue()[i], 2);
                     pos = this._last(null, pos);
                     p++;
                 }
-                output.push(sum/period);
+                output.push(Math.sqrt(sum/period));
             }
         }
         return new Series(output);
@@ -808,7 +812,7 @@ export class Series {
                 let sum = 0;
                 while (p<period) {
                     // @ts-ignore
-                    sum+=Math.pow(this.value[pos]-average.getValue[i], 2);
+                    sum+=Math.pow(this.value[pos]-average.getValue()[i], 2);
                     pos = this._last(null, pos);
                     p++;
                 }

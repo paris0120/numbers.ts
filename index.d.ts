@@ -23,6 +23,8 @@ export declare class Series {
     movingMin(period: number): Series;
     movingMaxIndex(period: number): Series;
     movingMinIndex(period: number): Series;
+    movingMaxDistance(period: number): Series;
+    movingMinDistance(period: number): Series;
     simpleMovingAverage(period: number): Series;
     exponentialMovingAverage(period: number, smoothing: number): Series;
     modifiedMovingAverage(period: number): Series;
@@ -31,7 +33,9 @@ export declare class Series {
     weightedModifiedMovingAverage(weight: Series | undefined, period: number): Series;
     weightedVariance(average: Series | number, weight: Series, period: number, smoothing: number): Series;
     weightedStdDev(average: Series | number, weight: Series, period: number, smoothing: number): Series;
+    weightedMeanDev(average: Series | number, weight: Series, period: number, smoothing: number): Series;
     stdDev(average: Series | number, period: number): Series;
+    meanDev(average: Series | number, period: number): Series;
     variance(average: Series | number, period: number): Series;
     absolute(): Series;
     greaterThan(value: Series | undefined | number): Series;

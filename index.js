@@ -518,6 +518,72 @@ class Series {
         }
         return new Series(output);
     }
+    movingMaxDistance(period) {
+        if (this.value == undefined)
+            throw Error("Empty series.");
+        if (period <= 0 || !Number.isInteger(period))
+            throw Error("period must be a positive ");
+        let output = [];
+        let c = 0;
+        for (let i = 0; i < this.value.length; i++) {
+            if (this.value[i] == null)
+                output.push(null);
+            else {
+                c++;
+                if (c < period)
+                    output.push(null);
+                else {
+                    let m = this.value[i];
+                    let index = 0;
+                    let pos = i;
+                    for (let p = 1; p < period; p++) { // @ts-ignore
+                        pos = this._last(pos);
+                        if (pos < 0)
+                            output.push(null);
+                        else {
+                            // @ts-ignore
+                            m = m > this.value[pos] ? m : this.value[pos], index = p;
+                            output.push(index);
+                        }
+                    }
+                }
+            }
+        }
+        return new Series(output);
+    }
+    movingMinDistance(period) {
+        if (this.value == undefined)
+            throw Error("Empty series.");
+        if (period <= 0 || !Number.isInteger(period))
+            throw Error("period must be a positive ");
+        let output = [];
+        let c = 0;
+        for (let i = 0; i < this.value.length; i++) {
+            if (this.value[i] == null)
+                output.push(null);
+            else {
+                c++;
+                if (c < period)
+                    output.push(null);
+                else {
+                    let m = this.value[i];
+                    let index = 0;
+                    let pos = i;
+                    for (let p = 1; p < period; p++) { // @ts-ignore
+                        pos = this._last(pos);
+                        if (pos < 0)
+                            output.push(null);
+                        else {
+                            // @ts-ignore
+                            m = m < this.value[pos] ? m : this.value[pos], index = p;
+                            output.push(index);
+                        }
+                    }
+                }
+            }
+        }
+        return new Series(output);
+    }
     simpleMovingAverage(period) {
         if (this.value == undefined)
             throw Error("Empty series.");
@@ -697,7 +763,7 @@ class Series {
                 wsum += weight.getValue()[i];
                 if (c >= period) {
                     if (wsum == 0)
-                        output.push(null);
+                        output.push(NaN);
                     else
                         output.push(sum / wsum);
                     sum -= sum / period;
@@ -808,7 +874,10 @@ class Series {
                         pos = this._last([weight], pos);
                         p++;
                     }
-                    output.push(Math.sqrt(sum / w));
+                    if (w == 0)
+                        output.push(NaN);
+                    else
+                        output.push(Math.sqrt(sum / w));
                 }
             }
         }
@@ -820,13 +889,88 @@ class Series {
                     let p = 0;
                     let pos = i;
                     let sum = 0;
+                    let w = 0;
                     while (p < period) {
                         // @ts-ignore
-                        sum += Math.pow(this.value[pos] - average.getValue()[i], 2);
+                        sum += Math.pow(this.value[pos] - average.getValue()[i], 2) * weight.getValue()[i];
+                        // @ts-ignore
+                        w += weight.getValue()[i];
                         pos = this._last(null, pos);
                         p++;
                     }
-                    output.push(Math.sqrt(sum / period));
+                    if (w == 0)
+                        output.push(NaN);
+                    else
+                        output.push(Math.sqrt(sum / w));
+                }
+            }
+        return new Series(output);
+    }
+    weightedMeanDev(average, weight, period, smoothing) {
+        if (this.value == undefined)
+            throw Error("Empty series.");
+        if (weight == undefined)
+            throw Error("Missing weight.");
+        if (period <= 0 || !Number.isInteger(period))
+            throw Error("period must be a positive ");
+        if (this.value.length != weight.length())
+            throw Error("Two values have different lengths. The current series has length of " + this.value.length + " and the weight has length of " + weight.length() + ".");
+        let sum = 0;
+        let start = 0;
+        let c = 1;
+        let output = [];
+        let i = 0;
+        while (c < period) {
+            if (this.value[i] != null)
+                c++;
+            i++;
+            output.push(null);
+        }
+        if (typeof average == 'number') {
+            for (; i < this.value.length; i++) {
+                if (this.value[i] == null || this._hasNull([weight], i))
+                    output.push(null);
+                else {
+                    let p = 0;
+                    let pos = i;
+                    let sum = 0;
+                    let w = 0;
+                    while (p < period) {
+                        // @ts-ignore
+                        sum += Math.abs(this.value[pos] - average) * weight.getValue()[i];
+                        // @ts-ignore
+                        w += weight.getValue()[i];
+                        pos = this._last([weight], pos);
+                        p++;
+                    }
+                    if (w == 0)
+                        output.push(NaN);
+                    else
+                        output.push(sum / w);
+                }
+            }
+        }
+        else
+            for (; i < this.value.length; i++) {
+                if (this.value[i] == null || average.getValue()[i] == null)
+                    output.push(null);
+                else {
+                    let p = 0;
+                    let pos = i;
+                    let sum = 0;
+                    let w = 0;
+                    while (p < period) {
+                        // @ts-ignore
+                        sum += Math.abs(this.value[pos] - average.getValue()[i]) * weight.getValue()[i];
+                        // @ts-ignore
+                        w += weight.getValue()[i];
+                        pos = this._last(null, pos);
+                        p++;
+                    }
+                    if (w == 0)
+                        output.push(NaN);
+                    else
+                        output.push(sum / w);
                 }
             }
         return new Series(output);
@@ -880,6 +1024,59 @@ class Series {
                         p++;
                     }
                     output.push(Math.sqrt(sum / period));
+                }
+            }
+        return new Series(output);
+    }
+    meanDev(average, period) {
+        if (this.value == undefined)
+            throw Error("Empty series.");
+        if (period <= 0 || !Number.isInteger(period))
+            throw Error("period must be a positive ");
+        let sum = 0;
+        let start = 0;
+        let c = 1;
+        let output = [];
+        let i = 0;
+        while (c < period) {
+            if (this.value[i] != null)
+                c++;
+            i++;
+            output.push(null);
+        }
+        if (typeof average == 'number') {
+            for (; i < this.value.length; i++) {
+                if (this.value[i] == null)
+                    output.push(null);
+                else {
+                    let p = 0;
+                    let pos = i;
+                    let sum = 0;
+                    while (p < period) {
+                        // @ts-ignore
+                        sum += Math.abs(this.value[pos] - average);
+                        pos = this._last(null, pos);
+                        p++;
+                    }
+                    output.push(sum / period);
+                }
+            }
+        }
+        else
+            for (; i < this.value.length; i++) {
+                if (this.value[i] == null || average.getValue()[i] == null)
+                    output.push(null);
+                else {
+                    let p = 0;
+                    let pos = i;
+                    let sum = 0;
+                    while (p < period) {
+                        // @ts-ignore
+                        sum += Math.abs(this.value[pos] - average.getValue()[i]);
+                        pos = this._last(null, pos);
+                        p++;
+                    }
+                    output.push(sum / period);
                 }
             }
         return new Series(output);

@@ -53,4 +53,12 @@ describe('testing index file', () => {
             5.266666666666667,
             6.239766081871345]);
     });
+    expect(series1.modifiedMovingAverage(3).getValue()).toEqual([1,
+        null,
+        null,
+        2,
+        2.6666666666666665,
+        3.4444444444444446,
+        4.296296296296297,
+        5.197530864197531]);
 });

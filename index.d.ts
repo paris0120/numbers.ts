@@ -16,6 +16,7 @@ export declare class Series {
     lead(period: number): Series;
     lag(period: number): Series;
     fillNull(value: Series | number | undefined): Series;
+    fillNaN(value: Series | number | undefined): Series;
     private _next;
     private _last;
     private _hasNull;

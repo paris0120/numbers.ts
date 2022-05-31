@@ -334,6 +334,23 @@ class Series {
             }
         return new Series(output);
     }
+    fillNaN(value) {
+        if (this.value == undefined)
+            throw Error("Empty series.");
+        if (value == undefined)
+            throw Error("Missing value.");
+        let output = [];
+        if (typeof value == 'number')
+            this.value.forEach(v => { v == NaN ? output.push(value) : output.push(v); });
+        else
+            for (let i = 0; i < this.value.length; i++) {
+                if (this.value[i] == NaN)
+                    output.push(value.getValue()[i]);
+                else
+                    output.push(this.value[i]);
+            }
+        return new Series(output);
+    }
     /*
     the index of next non-null value
      */

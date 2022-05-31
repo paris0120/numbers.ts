@@ -292,6 +292,15 @@ export class Series {
     }
 
 
+
+    public toFixed(decimals: number) {
+        if (this.value == undefined) throw Error("Empty series.");
+        if (decimals < 0 || !Number.isInteger(decimals)) throw Error("Decimals must be a non-negative integer.");
+        let output:(number|null)[] = [];
+        this.value.forEach(v=>{v==null?null:v.toFixed(decimals)});
+        return new Series(output);
+    }
+
     /*
     the index of next non-null value
      */
@@ -517,7 +526,6 @@ export class Series {
 
         return new Series(output);
     }
-
 
     public simpleMovingAverage(period: number):Series {
         if (this.value == undefined) throw Error("Empty series.");

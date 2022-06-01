@@ -149,11 +149,14 @@ class Series {
         else {
             if (this.value.length != value.length())
                 throw Error("Two values have different lengths. The current series has length of " + this.value.length + " and the input value has length of " + value.length() + ".");
+            let v = value.getValue();
             for (let i = 0; i < this.value.length; i++) {
-                if (this.value[i] == null || value.getValue()[i] == null || value.getValue()[i] == 0)
+                if (this.value[i] == null || v[i] == null)
                     output.push(null);
+                else if (v[i] == 0)
+                    output.push(NaN);
                 else { // @ts-ignore
-                    output.push(this.value[i] / value.getValue()[i]);
+                    output.push(this.value[i] / v[i]);
                 }
             }
         }
@@ -327,10 +330,7 @@ class Series {
             this.value.forEach(v => { v == null ? output.push(value) : output.push(v); });
         else
             for (let i = 0; i < this.value.length; i++) {
-                if (this.value[i] == null)
-                    output.push(value.getValue()[i]);
-                else
-                    output.push(this.value[i]);
+                this.value[i] == null ? output.push(value.getValue()[i]) : output.push(this.value[i]);
             }
         return new Series(output);
     }
@@ -341,14 +341,48 @@ class Series {
             throw Error("Missing value.");
         let output = [];
         if (typeof value == 'number')
-            this.value.forEach(v => { v == NaN ? output.push(value) : output.push(v); });
+            this.value.forEach(v => { Number.isNaN(v) ? output.push(value) : output.push(v); });
         else
             for (let i = 0; i < this.value.length; i++) {
-                if (this.value[i] == NaN)
-                    output.push(value.getValue()[i]);
-                else
-                    output.push(this.value[i]);
+                Number.isNaN(this.value[i]) ? output.push(value.getValue()[i]) : output.push(this.value[i]);
             }
+        return new Series(output);
+    }
+    fillError(value) {
+        if (this.value == undefined)
+            throw Error("Empty series.");
+        if (value == undefined)
+            throw Error("Missing value.");
+        let output = [];
+        if (typeof value == 'number')
+            this.value.forEach(v => { Number.isFinite(v) || v == null ? output.push(v) : output.push(value); });
+        else
+            for (let i = 0; i < this.value.length; i++) {
+                Number.isFinite(this.value[i]) || this.value[i] == null ? output.push(this.value[i]) : output.push(value.getValue()[i]);
+            }
+        return new Series(output);
+    }
+    fill(value) {
+        if (this.value == undefined)
+            throw Error("Empty series.");
+        if (value == undefined)
+            throw Error("Missing value.");
+        let output = [];
+        if (typeof value == 'number')
+            this.value.forEach(v => { Number.isFinite(v) ? output.push(v) : output.push(value); });
+        else
+            for (let i = 0; i < this.value.length; i++) {
+                Number.isFinite(this.value[i]) ? output.push(this.value[i]) : output.push(value.getValue()[i]);
+            }
+        return new Series(output);
+    }
+    toFixed(decimals) {
+        if (this.value == undefined)
+            throw Error("Empty series.");
+        if (decimals < 0 || !Number.isInteger(decimals))
+            throw Error("Decimals must be a non-negative integer.");
+        let output = [];
+        this.value.forEach(v => { v == null ? null : v.toFixed(decimals); });
         return new Series(output);
     }
     /*

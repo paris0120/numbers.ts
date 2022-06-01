@@ -4,6 +4,7 @@ describe('testing index file', () => {
     let series1 = new Series([1, 2, 3, 4, 5, 6, 7])
     let series2 = new Series([3, 4, 5, 6, 7, 8, 9])
     let series3 = new Series([3, 4, null, 6, 7, 8, 9])
+    let series4 = new Series([1, 0, 3, null, 5, 6, 7])
     test('+ - * / % ^', () => {
         expect(series1.add(series2).getValue()).toEqual([4,6,8,10,12,14,16]);
         expect(series3.carry().getValue()).toEqual([3,7,null,13,20,28,37]);
@@ -11,6 +12,11 @@ describe('testing index file', () => {
         expect(series1.distance(series2).getValue()).toEqual([2, 2, 2, 2, 2, 2, 2]);
         expect(series1.multiply(series2).getValue()).toEqual([3, 8 ,15, 24, 35, 48, 63]);
         expect(series1.divide(series2).getValue()).toEqual([1/3, 2/4, 3/5, 4/6, 5/7, 6/8, 7/9]);
+        expect(series1.divide(series4).getValue()).toEqual([1,NaN, 1, null, 1, 1, 1]);
+        expect(series1.divide(series4).fillNull(0).getValue()).toEqual([1,NaN, 1, 0, 1, 1, 1]);
+        expect(series1.divide(series4).fillNaN(0).getValue()).toEqual([1,0, 1, null, 1, 1, 1]);
+        expect(series1.divide(series4).fillError(0).getValue()).toEqual([1,0, 1, null, 1, 1, 1]);
+        expect(series1.divide(series4).fill(0).getValue()).toEqual([1,0, 1, 0, 1, 1, 1]);
         expect(series1.modulo(series2).getValue()).toEqual([1%3, 2%4, 3%5, 4%6, 5%7, 6%8, 7%9]);
         expect(series1.power(2).getValue()).toEqual([1, 4 ,9, 16, 25, 36, 49]);
     });
@@ -53,7 +59,7 @@ describe('testing index file', () => {
             5.266666666666667,
             6.239766081871345]);
     });
-    expect(series1.modifiedMovingAverage(3).getValue()).toEqual([1,
+    expect(series1.modifiedMovingAverage(3).getValue()).toEqual([
         null,
         null,
         2,

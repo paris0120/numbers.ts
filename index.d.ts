@@ -17,6 +17,9 @@ export declare class Series {
     lag(period: number): Series;
     fillNull(value: Series | number | undefined): Series;
     fillNaN(value: Series | number | undefined): Series;
+    fillError(value: Series | number | undefined): Series;
+    fill(value: Series | number | undefined): Series;
+    toFixed(decimals: number): Series;
     private _next;
     private _last;
     private _hasNull;

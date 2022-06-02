@@ -19,6 +19,7 @@ describe('testing index file', () => {
         expect(series1.divide(series4).fill(0).getValue()).toEqual([1,0, 1, 0, 1, 1, 1]);
         expect(series1.modulo(series2).getValue()).toEqual([1%3, 2%4, 3%5, 4%6, 5%7, 6%8, 7%9]);
         expect(series1.power(2).getValue()).toEqual([1, 4 ,9, 16, 25, 36, 49]);
+        expect(series1.divide(3).toFixed(3).getValue()).toEqual([0.333, 0.667 , 1, 1.333, 1.667, 2, 2.333]);
     });
 
     test('lag lead', () => {

@@ -320,7 +320,8 @@ export class Series {
         if (this.value == undefined) throw Error("Empty series.");
         if (decimals < 0 || !Number.isInteger(decimals)) throw Error("Decimals must be a non-negative integer.");
         let output:(number|null)[] = [];
-        this.value.forEach(v=>{v==null?null:v.toFixed(decimals)});
+        this.value.forEach(v=>{ // @ts-ignore
+            Number.isFinite(v)?output.push(Number.parseFloat(v.toFixed(decimals))):output.push(v)});
         return new Series(output);
     }
 

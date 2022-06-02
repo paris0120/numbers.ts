@@ -382,7 +382,9 @@ class Series {
         if (decimals < 0 || !Number.isInteger(decimals))
             throw Error("Decimals must be a non-negative integer.");
         let output = [];
-        this.value.forEach(v => { v == null ? null : v.toFixed(decimals); });
+        this.value.forEach(v => {
+            Number.isFinite(v) ? output.push(Number.parseFloat(v.toFixed(decimals))) : output.push(v);
+        });
         return new Series(output);
     }
     /*

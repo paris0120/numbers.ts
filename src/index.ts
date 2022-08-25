@@ -372,57 +372,65 @@ export class Series {
     Rolling statistic
      */
 
+
     public movingMax(period: number):Series {
         if (this.value == undefined) throw Error("Empty series.");
-        if (period <= 0 || !Number.isInteger(period)) throw Error("period must be a positive ");
+        if (period <= 0 || !Number.isInteger(period)) throw Error("period must be a positive number");
         let output:(number|null)[] = [];
         let c = 0;
         for(let i = 0;i<this.value.length; i++) {
-            if(this.value[i] == null) output.push(null);
+            let value = this.value[i];
+            if(value == null) output.push(null);
             else {
                 c++;
                 if(c<period) output.push(null);
                 else {
-                    let m = this.value[i];
+                    let m = value;
                     let pos = i;
-                    for(let p = 1; p < period; p++) { // @ts-ignore
-                        pos = this._last(pos);
-                        if(pos<0) output.push(null)
+                    for(let p = 1; p < period; p++) {
+                        pos = this._last(null, pos);
+                        if(pos<0) break;
                         else {
-                            // @ts-ignore
-                            m = m>=this.value[pos]?m:this.value[pos];
-                            output.push(m);
+                            value = this.value[pos];
+                            if(value!=null) {
+                                m = m>value?m:value;
+                            }
                         }
                     }
+                    output.push(m);
                 }
             }
         }
 
         return new Series(output);
     }
+
 
     public movingMin(period: number):Series {
         if (this.value == undefined) throw Error("Empty series.");
-        if (period <= 0 || !Number.isInteger(period)) throw Error("period must be a positive ");
+        if (period <= 0 || !Number.isInteger(period)) throw Error("period must be a positive number");
         let output:(number|null)[] = [];
         let c = 0;
         for(let i = 0;i<this.value.length; i++) {
-            if(this.value[i] == null) output.push(null);
+            let value = this.value[i];
+            if(value == null) output.push(null);
             else {
                 c++;
                 if(c<period) output.push(null);
                 else {
-                    let m = this.value[i];
+                    let m = value;
                     let pos = i;
-                    for(let p = 1; p < period; p++) { // @ts-ignore
-                        pos = this._last(pos);
-                        if(pos<0) output.push(null)
+                    for(let p = 1; p < period; p++) {
+                        pos = this._last(null, pos);
+                        if(pos<0) break;
                         else {
-                            // @ts-ignore
-                            m = m<=this.value[pos]?m:this.value[pos];
-                            output.push(m);
+                            value = this.value[pos];
+                            if(value!=null) {
+                                m = m<value?m:value;
+                            }
                         }
                     }
+                    output.push(m);
                 }
             }
         }
@@ -430,29 +438,35 @@ export class Series {
         return new Series(output);
     }
 
+
+
+
     public movingMaxIndex(period: number):Series {
         if (this.value == undefined) throw Error("Empty series.");
-        if (period <= 0 || !Number.isInteger(period)) throw Error("period must be a positive ");
+        if (period <= 0 || !Number.isInteger(period)) throw Error("period must be a positive number");
         let output:(number|null)[] = [];
         let c = 0;
         for(let i = 0;i<this.value.length; i++) {
-            if(this.value[i] == null) output.push(null);
+            let value = this.value[i];
+            if(value == null) output.push(null);
             else {
                 c++;
                 if(c<period) output.push(null);
                 else {
-                    let m = this.value[i];
+                    let m = value;
                     let index = i;
                     let pos = i;
-                    for(let p = 1; p < period; p++) { // @ts-ignore
-                        pos = this._last(pos);
-                        if(pos<0) output.push(null)
+                    for(let p = 1; p < period; p++) {
+                        pos = this._last(null, pos);
+                        if(pos<0) break;
                         else {
-                            // @ts-ignore
-                            m = m>=this.value[pos]?m:this.value[pos],index=pos;
-                            output.push(index);
+                            value = this.value[pos];
+                            if(value!=null) {
+                                m = m>value?m:value,index=pos;
+                            }
                         }
                     }
+                    output.push(index);
                 }
             }
         }
@@ -462,27 +476,30 @@ export class Series {
 
     public movingMinIndex(period: number):Series {
         if (this.value == undefined) throw Error("Empty series.");
-        if (period <= 0 || !Number.isInteger(period)) throw Error("period must be a positive ");
+        if (period <= 0 || !Number.isInteger(period)) throw Error("period must be a positive number");
         let output:(number|null)[] = [];
         let c = 0;
         for(let i = 0;i<this.value.length; i++) {
-            if(this.value[i] == null) output.push(null);
+            let value = this.value[i];
+            if(value == null) output.push(null);
             else {
                 c++;
                 if(c<period) output.push(null);
                 else {
-                    let m = this.value[i];
+                    let m = value;
                     let index = i;
                     let pos = i;
-                    for(let p = 1; p < period; p++) { // @ts-ignore
-                        pos = this._last(pos);
-                        if(pos<0) output.push(null)
+                    for(let p = 1; p < period; p++) {
+                        pos = this._last(null, pos);
+                        if(pos<0) break;
                         else {
-                            // @ts-ignore
-                            m = m<=this.value[pos]?m:this.value[pos],index=pos;
-                            output.push(index);
+                            value = this.value[pos];
+                            if(value!=null) {
+                                m = m<value?m:value,index=pos;
+                            }
                         }
                     }
+                    output.push(index);
                 }
             }
         }
@@ -491,29 +508,33 @@ export class Series {
     }
 
 
+
     public movingMaxDistance(period: number):Series {
         if (this.value == undefined) throw Error("Empty series.");
-        if (period <= 0 || !Number.isInteger(period)) throw Error("period must be a positive ");
+        if (period <= 0 || !Number.isInteger(period)) throw Error("period must be a positive number");
         let output:(number|null)[] = [];
         let c = 0;
         for(let i = 0;i<this.value.length; i++) {
-            if(this.value[i] == null) output.push(null);
+            let value = this.value[i];
+            if(value == null) output.push(null);
             else {
                 c++;
                 if(c<period) output.push(null);
                 else {
-                    let m = this.value[i];
-                    let index = 0;
+                    let m = value;
+                    let distance = 0;
                     let pos = i;
-                    for(let p = 1; p < period; p++) { // @ts-ignore
-                        pos = this._last(pos);
-                        if(pos<0) output.push(null)
+                    for(let p = 1; p < period; p++) {
+                        pos = this._last(null, pos);
+                        if(pos<0) break;
                         else {
-                            // @ts-ignore
-                            m = m>this.value[pos]?m:this.value[pos],index=p;
-                            output.push(index);
+                            value = this.value[pos];
+                            if(value!=null) {
+                                m = m>value?m:value,distance=p;
+                            }
                         }
                     }
+                    output.push(distance);
                 }
             }
         }
@@ -523,33 +544,37 @@ export class Series {
 
     public movingMinDistance(period: number):Series {
         if (this.value == undefined) throw Error("Empty series.");
-        if (period <= 0 || !Number.isInteger(period)) throw Error("period must be a positive ");
+        if (period <= 0 || !Number.isInteger(period)) throw Error("period must be a positive number");
         let output:(number|null)[] = [];
         let c = 0;
         for(let i = 0;i<this.value.length; i++) {
-            if(this.value[i] == null) output.push(null);
+            let value = this.value[i];
+            if(value == null) output.push(null);
             else {
                 c++;
                 if(c<period) output.push(null);
                 else {
-                    let m = this.value[i];
-                    let index = 0;
+                    let m = value;
+                    let distance = 0;
                     let pos = i;
-                    for(let p = 1; p < period; p++) { // @ts-ignore
-                        pos = this._last(pos);
-                        if(pos<0) output.push(null)
+                    for(let p = 1; p < period; p++) {
+                        pos = this._last(null, pos);
+                        if(pos<0) break;
                         else {
-                            // @ts-ignore
-                            m = m<this.value[pos]?m:this.value[pos],index=p;
-                            output.push(index);
+                            value = this.value[pos];
+                            if(value!=null) {
+                                m = m<value?m:value,distance=p;
+                            }
                         }
                     }
+                    output.push(distance);
                 }
             }
         }
 
         return new Series(output);
     }
+
 
     public simpleMovingAverage(period: number):Series {
         if (this.value == undefined) throw Error("Empty series.");

@@ -445,29 +445,32 @@ class Series {
         if (this.value == undefined)
             throw Error("Empty series.");
         if (period <= 0 || !Number.isInteger(period))
-            throw Error("period must be a positive ");
+            throw Error("period must be a positive number");
         let output = [];
         let c = 0;
         for (let i = 0; i < this.value.length; i++) {
-            if (this.value[i] == null)
+            let value = this.value[i];
+            if (value == null)
                 output.push(null);
             else {
                 c++;
                 if (c < period)
                     output.push(null);
                 else {
-                    let m = this.value[i];
+                    let m = value;
                     let pos = i;
-                    for (let p = 1; p < period; p++) { // @ts-ignore
-                        pos = this._last(pos);
+                    for (let p = 1; p < period; p++) {
+                        pos = this._last(null, pos);
                         if (pos < 0)
-                            output.push(null);
+                            break;
                         else {
-                            // @ts-ignore
-                            m = m >= this.value[pos] ? m : this.value[pos];
-                            output.push(m);
+                            value = this.value[pos];
+                            if (value != null) {
+                                m = m > value ? m : value;
+                            }
                         }
                     }
+                    output.push(m);
                 }
             }
         }
@@ -477,29 +480,32 @@ class Series {
         if (this.value == undefined)
             throw Error("Empty series.");
         if (period <= 0 || !Number.isInteger(period))
-            throw Error("period must be a positive ");
+            throw Error("period must be a positive number");
         let output = [];
         let c = 0;
         for (let i = 0; i < this.value.length; i++) {
-            if (this.value[i] == null)
+            let value = this.value[i];
+            if (value == null)
                 output.push(null);
             else {
                 c++;
                 if (c < period)
                     output.push(null);
                 else {
-                    let m = this.value[i];
+                    let m = value;
                     let pos = i;
-                    for (let p = 1; p < period; p++) { // @ts-ignore
-                        pos = this._last(pos);
+                    for (let p = 1; p < period; p++) {
+                        pos = this._last(null, pos);
                         if (pos < 0)
-                            output.push(null);
+                            break;
                         else {
-                            // @ts-ignore
-                            m = m <= this.value[pos] ? m : this.value[pos];
-                            output.push(m);
+                            value = this.value[pos];
+                            if (value != null) {
+                                m = m < value ? m : value;
+                            }
                         }
                     }
+                    output.push(m);
                 }
             }
         }
@@ -509,30 +515,33 @@ class Series {
         if (this.value == undefined)
             throw Error("Empty series.");
         if (period <= 0 || !Number.isInteger(period))
-            throw Error("period must be a positive ");
+            throw Error("period must be a positive number");
         let output = [];
         let c = 0;
         for (let i = 0; i < this.value.length; i++) {
-            if (this.value[i] == null)
+            let value = this.value[i];
+            if (value == null)
                 output.push(null);
             else {
                 c++;
                 if (c < period)
                     output.push(null);
                 else {
-                    let m = this.value[i];
+                    let m = value;
                     let index = i;
                     let pos = i;
-                    for (let p = 1; p < period; p++) { // @ts-ignore
-                        pos = this._last(pos);
+                    for (let p = 1; p < period; p++) {
+                        pos = this._last(null, pos);
                         if (pos < 0)
-                            output.push(null);
+                            break;
                         else {
-                            // @ts-ignore
-                            m = m >= this.value[pos] ? m : this.value[pos], index = pos;
-                            output.push(index);
+                            value = this.value[pos];
+                            if (value != null) {
+                                m = m > value ? m : value, index = pos;
+                            }
                         }
                     }
+                    output.push(index);
                 }
             }
         }
@@ -542,30 +551,33 @@ class Series {
         if (this.value == undefined)
             throw Error("Empty series.");
         if (period <= 0 || !Number.isInteger(period))
-            throw Error("period must be a positive ");
+            throw Error("period must be a positive number");
         let output = [];
         let c = 0;
         for (let i = 0; i < this.value.length; i++) {
-            if (this.value[i] == null)
+            let value = this.value[i];
+            if (value == null)
                 output.push(null);
             else {
                 c++;
                 if (c < period)
                     output.push(null);
                 else {
-                    let m = this.value[i];
+                    let m = value;
                     let index = i;
                     let pos = i;
-                    for (let p = 1; p < period; p++) { // @ts-ignore
-                        pos = this._last(pos);
+                    for (let p = 1; p < period; p++) {
+                        pos = this._last(null, pos);
                         if (pos < 0)
-                            output.push(null);
+                            break;
                         else {
-                            // @ts-ignore
-                            m = m <= this.value[pos] ? m : this.value[pos], index = pos;
-                            output.push(index);
+                            value = this.value[pos];
+                            if (value != null) {
+                                m = m < value ? m : value, index = pos;
+                            }
                         }
                     }
+                    output.push(index);
                 }
             }
         }
@@ -575,30 +587,33 @@ class Series {
         if (this.value == undefined)
             throw Error("Empty series.");
         if (period <= 0 || !Number.isInteger(period))
-            throw Error("period must be a positive ");
+            throw Error("period must be a positive number");
         let output = [];
         let c = 0;
         for (let i = 0; i < this.value.length; i++) {
-            if (this.value[i] == null)
+            let value = this.value[i];
+            if (value == null)
                 output.push(null);
             else {
                 c++;
                 if (c < period)
                     output.push(null);
                 else {
-                    let m = this.value[i];
-                    let index = 0;
+                    let m = value;
+                    let distance = 0;
                     let pos = i;
-                    for (let p = 1; p < period; p++) { // @ts-ignore
-                        pos = this._last(pos);
+                    for (let p = 1; p < period; p++) {
+                        pos = this._last(null, pos);
                         if (pos < 0)
-                            output.push(null);
+                            break;
                         else {
-                            // @ts-ignore
-                            m = m > this.value[pos] ? m : this.value[pos], index = p;
-                            output.push(index);
+                            value = this.value[pos];
+                            if (value != null) {
+                                m = m > value ? m : value, distance = p;
+                            }
                         }
                     }
+                    output.push(distance);
                 }
             }
         }
@@ -608,30 +623,33 @@ class Series {
         if (this.value == undefined)
             throw Error("Empty series.");
         if (period <= 0 || !Number.isInteger(period))
-            throw Error("period must be a positive ");
+            throw Error("period must be a positive number");
         let output = [];
         let c = 0;
         for (let i = 0; i < this.value.length; i++) {
-            if (this.value[i] == null)
+            let value = this.value[i];
+            if (value == null)
                 output.push(null);
             else {
                 c++;
                 if (c < period)
                     output.push(null);
                 else {
-                    let m = this.value[i];
-                    let index = 0;
+                    let m = value;
+                    let distance = 0;
                     let pos = i;
-                    for (let p = 1; p < period; p++) { // @ts-ignore
-                        pos = this._last(pos);
+                    for (let p = 1; p < period; p++) {
+                        pos = this._last(null, pos);
                         if (pos < 0)
-                            output.push(null);
+                            break;
                         else {
-                            // @ts-ignore
-                            m = m < this.value[pos] ? m : this.value[pos], index = p;
-                            output.push(index);
+                            value = this.value[pos];
+                            if (value != null) {
+                                m = m < value ? m : value, distance = p;
+                            }
                         }
                     }
+                    output.push(distance);
                 }
             }
         }
